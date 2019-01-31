@@ -24,7 +24,11 @@
   #include <sys/sysctl.h>
 #endif
 
+#if defined(__aarch64) || defined(__aarch64__)
+#include "SSE2NEON.h"
+#else
 #include <xmmintrin.h>
+#endif
 #include <cstdint>
 #include <climits>
 #include <atomic>

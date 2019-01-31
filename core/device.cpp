@@ -23,8 +23,11 @@ namespace oidn {
 
   Device::Device()
   {
+#if defined(__aarch64__) || defined(__aarch64)
+#else
     if (!mayiuse(sse42))
       throw Exception(Error::UnsupportedHardware, "SSE4.2 support is required at minimum");
+#endif
   }
 
   Device::~Device()

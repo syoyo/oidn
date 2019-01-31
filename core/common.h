@@ -21,7 +21,10 @@
 #include "mkl-dnn/include/mkldnn.hpp"
 #include "mkl-dnn/include/mkldnn_debug.h"
 #include "mkl-dnn/src/common/mkldnn_thread.hpp"
+#if defined(__aarch64) || defined(__aarch64__)
+#else
 #include "mkl-dnn/src/cpu/jit_generator.hpp"
+#endif
 
 #include "common/ref.h"
 #include "common/exception.h"
@@ -32,7 +35,10 @@
 namespace oidn {
 
   using namespace mkldnn;
+#if defined(__aarch64) || defined(__aarch64__)
+#else
   using namespace mkldnn::impl::cpu;
+#endif
   using mkldnn::impl::parallel_nd;
 
 

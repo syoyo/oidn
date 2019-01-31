@@ -48,6 +48,9 @@ endif()
 
 include(GNUInstallDirs)
 
+# C++11
+set(CMAKE_CXX_STANDARD 11)
+
 # Output paths
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
@@ -78,13 +81,13 @@ set(WITH_TEST OFF CACHE INTERNAL "")
 set(BENCHDNN_USE_RDPMC OFF CACHE INTERNAL "")
 
 # Add modified version of MKL-DNN
-add_subdirectory(mkl-dnn EXCLUDE_FROM_ALL)
+#add_subdirectory(mkl-dnn EXCLUDE_FROM_ALL)
 
 # Include some modules from MKL-DNN
 include(mkl-dnn/cmake/Threading.cmake)
 include(mkl-dnn/cmake/TBB.cmake)
-include(mkl-dnn/cmake/platform.cmake)
-include(mkl-dnn/cmake/SDL.cmake)
+#include(mkl-dnn/cmake/platform.cmake)
+#include(mkl-dnn/cmake/SDL.cmake)
 
 ## ----------------------------------------------------------------------------
 ## Open Image Denoise library

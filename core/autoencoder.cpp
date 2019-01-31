@@ -68,10 +68,14 @@ namespace oidn {
 
     device->executeTask([&]()
     {
+#if defined(__aarch64) || defined(__aarch64__)
+      net = buildNet<8>();
+#else
       if (mayiuse(avx512_common))
         net = buildNet<16>();
       else
         net = buildNet<8>();
+#endif
     });
 
     dirty = false;
