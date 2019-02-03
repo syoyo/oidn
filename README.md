@@ -1,6 +1,6 @@
 # Intel® Open Image Denoise
 
-This is release v0.8.0 of Open Image Denoise. For changes and new
+This is release v0.8.1 of Open Image Denoise. For changes and new
 features see the [changelog](CHANGELOG.md). Visit
 http://www.openimagedenoise.org for more information.
 
@@ -24,14 +24,14 @@ necessary samples per pixel by even multiple orders of magnitude
 Open Image Denoise supports Intel® 64 architecture based CPUs and
 compatible architectures, and runs on anything from laptops, to
 workstations, to compute nodes in HPC systems. It is efficient enough to
-be suitable not only for offline rendering, but also for interactive or
-even real-time ray tracing.
+be suitable not only for offline rendering, but, depending on the
+hardware used, also for interactive ray tracing.
 
 Open Image Denoise internally builds on top of [Intel® Math Kernel
 Library for Deep Neural Networks
 (MKL-DNN)](https://github.com/intel/mkl-dnn), and fully exploits modern
 instruction sets like Intel SSE4, AVX2, and AVX-512 to achieve high
-denoising performance. A CPU with support for at least SSE4.2 is
+denoising performance. A CPU with support for at least SSE4.1 is
 required to run Open Image Denoise.
 
 ## Support and Contact
@@ -72,7 +72,7 @@ you need the following prerequisites:
         git clone --recursive https://github.com/OpenImageDenoise/oidn.git
 
   - To build Open Image Denoise you need [CMake](http://www.cmake.org)
-    3.0 or later, a C++11 compiler (we recommend using Clang, but also
+    3.1 or later, a C++11 compiler (we recommend using Clang, but also
     support GCC, Microsoft Visual Studio 2015 or later, and [Intel® C++
     Compiler](https://software.intel.com/en-us/c-compilers) 17.0 or
     later), and Python 2.7 or later.
@@ -295,7 +295,7 @@ following:
 | Name                        | Description                             |
 | :-------------------------- | :-------------------------------------- |
 | OIDN\_DEVICE\_TYPE\_DEFAULT | select the approximately fastest device |
-| OIDN\_DEVICE\_TYPE\_CPU     | CPU device (requires SSE4.2 support)    |
+| OIDN\_DEVICE\_TYPE\_CPU     | CPU device (requires SSE4.1 support)    |
 
 Supported device types, i.e., valid constants of type `OIDNDeviceType`.
 

@@ -4,7 +4,7 @@ Download Precompiled Open Image Denoise Binary Packages
 Prerequisites
 -------------
 
-Your CPU must support at least SSE4.2 to run Open Image Denoise, and you need
+Your CPU must support at least SSE4.1 to run Open Image Denoise, and you need
 a 64-bit operating system as well. The TGZ/ZIP packages contain most needed
 3rd party dependencies.
 
@@ -25,7 +25,7 @@ For Windows we provide Open Image Denoise binaries precompiled for 64-bit as a Z
 
 The source code of the latest Open Image Denoise version can be downloaded here:
 
-[oidn-<OIDN_VERSION>.zip](https://github.com/OpenImageDenoise/oidn/archive/v<OIDN_VERSION>.zip)
-[oidn-<OIDN_VERSION>.tar.gz](https://github.com/OpenImageDenoise/oidn/archive/v<OIDN_VERSION>.tar.gz)
+[oidn-<OIDN_VERSION>.src.zip](https://github.com/OpenImageDenoise/oidn/releases/download/v<OIDN_VERSION>/oidn-<OIDN_VERSION>.src.zip)
+[oidn-<OIDN_VERSION>.src.tar.gz](https://github.com/OpenImageDenoise/oidn/releases/download/v<OIDN_VERSION>/oidn-<OIDN_VERSION>.src.tar.gz)
 
 You can also access [old Open Image Denoise releases](https://github.com/OpenImageDenoise/oidn/releases).

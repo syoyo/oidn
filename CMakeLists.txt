@@ -14,11 +14,11 @@
 ## limitations under the License.                                           ##
 ## ======================================================================== ##
 
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.1)
 
 set(OIDN_VERSION_MAJOR 0)
 set(OIDN_VERSION_MINOR 8)
-set(OIDN_VERSION_PATCH 0)
+set(OIDN_VERSION_PATCH 1)
 set(OIDN_VERSION_NOTE "")
 
 set(OIDN_VERSION ${OIDN_VERSION_MAJOR}.${OIDN_VERSION_MINOR}.${OIDN_VERSION_PATCH})
@@ -46,8 +46,6 @@ else()
   set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS ${CONFIGURATION_TYPES})
 endif()
 
-include(GNUInstallDirs)
-
 # C++11
 set(CMAKE_CXX_STANDARD 11)
 
@@ -56,14 +54,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
 
-# Packaging
-option(OIDN_ZIP_MODE off)
-mark_as_advanced(OIDN_ZIP_MODE)
-if(OIDN_ZIP_MODE)
-  set(CMAKE_INSTALL_BINDIR bin)
-  set(CMAKE_INSTALL_LIBDIR lib)
-  set(CMAKE_INSTALL_DOCDIR doc)
-endif()
+# Configure packaging
+include(package)
 
 ## ----------------------------------------------------------------------------
 ## MKL-DNN
@@ -88,6 +80,10 @@ include(mkl-dnn/cmake/Threading.cmake)
 include(mkl-dnn/cmake/TBB.cmake)
 #include(mkl-dnn/cmake/platform.cmake)
 #include(mkl-dnn/cmake/SDL.cmake)
+
+# Propagate no warning flags
+#append(CMAKE_C_FLAGS "${CMAKE_CCXX_NOWARN_FLAGS}")
+#append(CMAKE_CXX_FLAGS "${CMAKE_CCXX_NOWARN_FLAGS}")
 
 ## ----------------------------------------------------------------------------
 ## Open Image Denoise library
@@ -134,7 +130,7 @@ set(CORE_SOURCES
   core/autoencoder.h
 )
 
-set(CORE_SOURCES_SSE42
+set(CORE_SOURCES_SSE41
   core/network.cpp
   core/autoencoder.cpp
   core/tone_mapping.cpp
@@ -150,17 +146,14 @@ generate_cpp_resources(WEIGHTS_SOURCES "oidn::weights"
   weights/rt_hdr_alb_nrm.tza
 )
 
-add_library(${PROJECT_NAME} SHARED ${CORE_SOURCES} ${WEIGHTS_SOURCES})
+set_source_files_properties(${CORE_SOURCES_SSE41} PROPERTIES COMPILE_FLAGS "${ISA_FLAGS_SSE41}")
 
-add_library("${PROJECT_NAME}_sse42" STATIC ${CORE_SOURCES_SSE42})
-set_target_properties("${PROJECT_NAME}_sse42" PROPERTIES COMPILE_FLAGS "${ISA_FLAGS_SSE42}")
+add_library(${PROJECT_NAME} SHARED ${CORE_SOURCES} ${CORE_SOURCES_SSE41} ${WEIGHTS_SOURCES})
 
 target_link_libraries(${PROJECT_NAME}
-  PUBLIC
-    ${TBB_LIBRARIES}
   PRIVATE
-    "${PROJECT_NAME}_sse42"
     common mkldnn
+    ${TBB_LIBRARIES}
 )
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY VERSION ${PROJECT_VERSION})
@@ -177,4 +170,6 @@ add_subdirectory(examples)
 ## ----------------------------------------------------------------------------
 
 include(install)
-include(package)
+
+# Has to be last
+include(CPack)

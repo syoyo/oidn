@@ -25,8 +25,8 @@ namespace oidn {
   {
 #if defined(__aarch64__) || defined(__aarch64)
 #else
-    if (!mayiuse(sse42))
-      throw Exception(Error::UnsupportedHardware, "SSE4.2 support is required at minimum");
+    if (!mayiuse(sse41))
+      throw Exception(Error::UnsupportedHardware, "SSE4.1 support is required at minimum");
 #endif
   }
 
