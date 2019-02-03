@@ -66,27 +66,32 @@ namespace oidn {
       const int W = srcDesc.dims[3];
       const int CK = C / K;
 
-      parallel_nd(CK, H, [&](int ck, int h)
+      //parallel_nd(CK, H, [&](int ck, int h)
+      // TODO(syoyo): Parallel
+      for (int h = 0; h < H; h++)
       {
-        const size_t offset = ck*H*W*K + h*W*K;
-        const float* srcPtr_line = srcPtr + offset;
-        float* dstPtr_line0 = dstPtr + offset * 4;
-        float* dstPtr_line1 = dstPtr_line0 + W*2*K; // next line
-
-        for (int w = 0; w < W; ++w)
+        for (int ck = 0; ck < CK; ck++)
         {
-          #pragma unroll
-          for (int k = 0; k < K; k += 4)
-          {
-            const __m128 m = _mm_load_ps(&srcPtr_line[w*K + k]);
+          const size_t offset = ck*H*W*K + h*W*K;
+          const float* srcPtr_line = srcPtr + offset;
+          float* dstPtr_line0 = dstPtr + offset * 4;
+          float* dstPtr_line1 = dstPtr_line0 + W*2*K; // next line
 
-            _mm_stream_ps(&dstPtr_line0[w*2*K   + k], m);
-            _mm_stream_ps(&dstPtr_line0[w*2*K+K + k], m);
-            _mm_stream_ps(&dstPtr_line1[w*2*K   + k], m);
-            _mm_stream_ps(&dstPtr_line1[w*2*K+K + k], m);
+          for (int w = 0; w < W; ++w)
+          {
+            #pragma unroll
+            for (int k = 0; k < K; k += 4)
+            {
+              const __m128 m = _mm_load_ps(&srcPtr_line[w*K + k]);
+
+              _mm_stream_ps(&dstPtr_line0[w*2*K   + k], m);
+              _mm_stream_ps(&dstPtr_line0[w*2*K+K + k], m);
+              _mm_stream_ps(&dstPtr_line1[w*2*K   + k], m);
+              _mm_stream_ps(&dstPtr_line1[w*2*K+K + k], m);
+            }
           }
         }
-      });
+      }
     }
 
     std::shared_ptr<memory> getDst() const override { return dst; }

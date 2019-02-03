@@ -29,6 +29,21 @@
 #define OIDN_TRY \
   try {
 
+#if defined(OIDN_USE_NNPACK)
+
+#define OIDN_CATCH(obj) \
+  } catch (Exception& e) {                                                                          \
+    Device::setError(obj ? obj->getDevice() : nullptr, e.code(), e.what());                         \
+  } catch (std::bad_alloc&) {                                                                       \
+    Device::setError(obj ? obj->getDevice() : nullptr, Error::OutOfMemory, "out of memory");        \
+  } catch (std::exception& e) {                                                                     \
+    Device::setError(obj ? obj->getDevice() : nullptr, Error::Unknown, e.what());                   \
+  } catch (...) {                                                                                   \
+    Device::setError(obj ? obj->getDevice() : nullptr, Error::Unknown, "unknown exception caught"); \
+  }
+
+#else
+
 #define OIDN_CATCH(obj) \
   } catch (Exception& e) {                                                                          \
     Device::setError(obj ? obj->getDevice() : nullptr, e.code(), e.what());                         \
@@ -41,6 +56,8 @@
   } catch (...) {                                                                                   \
     Device::setError(obj ? obj->getDevice() : nullptr, Error::Unknown, "unknown exception caught"); \
   }
+
+#endif
 
 #include "device.h"
 #include "filter.h"

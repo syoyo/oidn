@@ -14,7 +14,7 @@
 ## limitations under the License.                                           ##
 ## ======================================================================== ##
 
-add_library(common STATIC
+add_library(common SHARED
   platform.h
   platform.cpp
   exception.h

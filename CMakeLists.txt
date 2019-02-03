@@ -58,6 +58,14 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
 include(package)
 
 ## ----------------------------------------------------------------------------
+## NNPACK
+## ----------------------------------------------------------------------------
+include_directories(${NNPACK_INC_PATH})
+link_directories(${NNPACK_LIB_PATH})
+add_definitions(-DOIDN_USE_NNPACK)
+
+
+## ----------------------------------------------------------------------------
 ## MKL-DNN
 ## ----------------------------------------------------------------------------
 
@@ -70,7 +78,7 @@ set(MKLDNN_USE_CLANG_SANITIZER "" CACHE INTERNAL "")
 set(MKLDNN_VERBOSE OFF CACHE BOOL "")
 set(WITH_EXAMPLE OFF CACHE INTERNAL "")
 set(WITH_TEST OFF CACHE INTERNAL "")
-set(BENCHDNN_USE_RDPMC OFF CACHE INTERNAL "")
+#set(BENCHDNN_USE_RDPMC OFF CACHE INTERNAL "")
 
 # Add modified version of MKL-DNN
 #add_subdirectory(mkl-dnn EXCLUDE_FROM_ALL)
@@ -150,10 +158,13 @@ set_source_files_properties(${CORE_SOURCES_SSE41} PROPERTIES COMPILE_FLAGS "${IS
 
 add_library(${PROJECT_NAME} SHARED ${CORE_SOURCES} ${CORE_SOURCES_SSE41} ${WEIGHTS_SOURCES})
 
+#list(APPEND DNN_LIBRARY mkldnn ${TBB_LIBRARIES})
+list(APPEND DNN_LIBRARY nnpack ${TBB_LIBRARIES})
+
 target_link_libraries(${PROJECT_NAME}
   PRIVATE
-    common mkldnn
-    ${TBB_LIBRARIES}
+    common
+    ${DNN_LIBRARY}
 )
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY VERSION ${PROJECT_VERSION})

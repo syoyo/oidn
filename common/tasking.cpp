@@ -42,14 +42,24 @@ namespace oidn {
 
   void PinningObserver::on_scheduler_entry(bool isWorker)
   {
+#if OIDN_USE_NNPACK
+    // TODO(syoyo): Implement
+    (void)isWorker;
+#else
     const int threadIndex = tbb::this_task_arena::current_thread_index();
     affinity->set(threadIndex);
+#endif
   }
 
   void PinningObserver::on_scheduler_exit(bool isWorker)
   {
+#if OIDN_USE_NNPACK
+    // TODO(syoyo): Implement
+    (void)isWorker;
+#else
     const int threadIndex = tbb::this_task_arena::current_thread_index();
     affinity->restore(threadIndex);
+#endif
   }
 
 } // namespace oidn

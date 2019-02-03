@@ -17,13 +17,25 @@
 #include "device.h"
 #include "autoencoder.h"
 
+#if defined(OIDN_USE_NNPACK)
+#include <thread>
+#endif
+
 namespace oidn {
 
   thread_local Device::ErrorState Device::globalError;
 
+  static int GetMaxConcurrency() {
+#if defined(OIDN_USE_NNPACK)
+    return std::max(1, int(std::thread::hardware_concurrency()));
+#else
+    return tbb::this_task_arena::max_concurrency()
+#endif
+  }
+
   Device::Device()
   {
-#if defined(__aarch64__) || defined(__aarch64)
+#if defined(OIDN_USE_NNPACK)
 #else
     if (!mayiuse(sse41))
       throw Exception(Error::UnsupportedHardware, "SSE4.1 support is required at minimum");
@@ -142,7 +154,7 @@ namespace oidn {
     }
 
     // Create the task arena
-    const int maxNumThreads = affinity ? affinity->getNumThreads() : tbb::this_task_arena::max_concurrency();
+    const int maxNumThreads = affinity ? affinity->getNumThreads() : GetMaxConcurrency();
     numThreads = (numThreads > 0) ? min(numThreads, maxNumThreads) : maxNumThreads;
     arena = std::make_shared<tbb::task_arena>(numThreads);
 

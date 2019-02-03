@@ -68,7 +68,7 @@ namespace oidn {
 
     device->executeTask([&]()
     {
-#if defined(__aarch64) || defined(__aarch64__)
+#if defined(OIDN_USE_NNPACK)
       net = buildNet<8>();
 #else
       if (mayiuse(avx512_common))

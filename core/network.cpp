@@ -159,6 +159,10 @@ namespace oidn {
     // Let the convolution primitive choose the weights format
     auto weightsDesc = memory::desc({ weightsPadDims }, memory::data_type::f32, memory::format::any);
 
+#if defined(OIDN_USE_NNPACK)
+    // TODO(LTE):
+    return nullptr;
+#else
     auto convAlgo = (K == 16) ? convolution_winograd : convolution_direct;
     auto convDesc = convolution_forward::desc(
       prop_kind::forward_inference, convAlgo,
@@ -196,6 +200,7 @@ namespace oidn {
     auto node = std::make_shared<ConvNode>(convPrimDesc, src, weights, bias, dst);
     nodes.push_back(node);
     return node;
+#endif
   }
 
   template<int K>
@@ -223,6 +228,10 @@ namespace oidn {
       dst = allocTensor(dstDims);
     assert(getTensorDims(dst) == dstDims);
 
+#if defined(OIDN_USE_NNPACK)
+    // TODO(LTE):
+    return nullptr;
+#else
     auto poolDesc = pooling_forward::desc(
       prop_kind::forward_inference, pooling_max,
       src->get_primitive_desc().desc(),
@@ -233,6 +242,7 @@ namespace oidn {
     auto node = std::make_shared<PoolNode>(poolPrimDesc, src, dst);
     nodes.push_back(node);
     return node;
+#endif
   }
 
   template<int K>

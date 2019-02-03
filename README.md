@@ -1,3 +1,7 @@
+# OIDN ported to AARCH64
+
+mkl-dnn is replaced with NNPACK.
+
 # Intel® Open Image Denoise
 
 This is release v0.8.1 of Open Image Denoise. For changes and new

@@ -18,11 +18,12 @@
 
 #include "common/platform.h"
 
+#if OIDN_USE_NNPACK
+#include "mkldnn-compat.h"
+#else
 #include "mkl-dnn/include/mkldnn.hpp"
 #include "mkl-dnn/include/mkldnn_debug.h"
 #include "mkl-dnn/src/common/mkldnn_thread.hpp"
-#if defined(__aarch64) || defined(__aarch64__)
-#else
 #include "mkl-dnn/src/cpu/jit_generator.hpp"
 #endif
 
@@ -34,13 +35,13 @@
 
 namespace oidn {
 
-  using namespace mkldnn;
-#if defined(__aarch64) || defined(__aarch64__)
+#if OIDN_USE_NNPACK
+  using namespace mkldnn_compat;
 #else
+  using namespace mkldnn;
   using namespace mkldnn::impl::cpu;
-#endif
   using mkldnn::impl::parallel_nd;
-
+#endif
 
   inline size_t getFormatBytes(Format format)
   {
@@ -55,7 +56,6 @@ namespace oidn {
     assert(0);
     return 0;
   }
-
 
   inline memory::dims getTensorDims(const std::shared_ptr<memory>& mem)
   {

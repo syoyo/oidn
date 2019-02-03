@@ -77,7 +77,8 @@ namespace oidn {
       const int H = min(H2, 2*H1-2);
       const int W = min(W2, 2*W1-2);
 
-      parallel_nd(H, [&](int h)
+      //parallel_nd(H, [&](int h)
+      for (int h = 0; h < H; h++) 
       {
         for (int w = 0; w < W; ++w)
         {
@@ -92,7 +93,7 @@ namespace oidn {
           if (normal)
             storeNormal(h, w, c, (float*)normal.get(h1, w1));
         }
-      });
+      };
     }
 
     std::shared_ptr<memory> getDst() const override { return dst; }

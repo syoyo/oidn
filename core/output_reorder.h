@@ -67,7 +67,8 @@ namespace oidn {
       const int H2 = output.height;
       const int W2 = output.width;
 
-      parallel_nd(H2, [&](int h)
+      //parallel_nd(H2, [&](int h)
+      for (int h = 0; h < H2; h++)
       {
         for (int w = 0; w < W2; ++w)
         {
@@ -92,7 +93,7 @@ namespace oidn {
             dstPtr_C[i] = x;
           }
         }
-      });
+      }
     }
   };
 

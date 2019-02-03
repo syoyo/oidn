@@ -43,10 +43,15 @@ namespace oidn {
 
     void execute() override
     {
+#if defined(OIDN_USE_NNPACK)
+#else
       stream(stream::kind::eager).submit(net).wait();
+#endif
     }
   };
 
+#if defined(OIDN_USE_NNPACK)
+#else
   // Convolution node
   class ConvNode : public MklNode
   {
@@ -84,5 +89,6 @@ namespace oidn {
 
     std::shared_ptr<memory> getDst() const override { return dst; }
   };
+#endif
 
 } // namespace oidn
