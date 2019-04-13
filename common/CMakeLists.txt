@@ -28,3 +28,18 @@ add_library(common SHARED
   tensor.h
   tensor.cpp
 )
+
+if(OIDN_STATIC_LIB)
+  target_compile_definitions(common PUBLIC -DOIDN_STATIC_LIB)
+endif()
+
+target_include_directories(common
+  PUBLIC
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
+    $<BUILD_INTERFACE:${TBB_INCLUDE_DIR}>
+)
+
+target_link_libraries(common
+  PUBLIC
+    ${TBB_LIBRARIES}
+)

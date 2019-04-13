@@ -20,6 +20,9 @@
 
 namespace oidn {
 
+  constexpr float minVectorLength    = 1e-10f;
+  constexpr float minVectorLengthSqr = minVectorLength * minVectorLength;
+
   using std::log2;
   using std::exp2;
   using std::pow;
@@ -41,6 +44,16 @@ namespace oidn {
     __m128 r = _mm_rsqrt_ss(_mm_set_ss(x));
     return _mm_cvtss_f32(_mm_add_ss(_mm_mul_ss(_mm_set_ss(1.5f), r),
              _mm_mul_ss(_mm_mul_ss(_mm_mul_ss(_mm_set_ss(x), _mm_set_ss(-0.5f)), r), _mm_mul_ss(r, r))));
+  }
+
+  __forceinline float maxSafe(float value, float minValue)
+  {
+    return isfinite(value) ? max(value, minValue) : minValue;
+  }
+
+  __forceinline float clampSafe(float value, float minValue, float maxValue)
+  {
+    return isfinite(value) ? clamp(value, minValue, maxValue) : minValue;
   }
 
 } // namespace oidn

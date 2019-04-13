@@ -3,7 +3,7 @@ SHELL := /bin/bash
 webpages := $(addprefix www/, $(addsuffix .html, index news documentation gallery downloads related_projects legal))
 process_version := $(addprefix tmp/, $(addsuffix .md, downloads readme_head))
 tmptexfiles := $(addprefix tmp/, $(addsuffix .tex, overview changelog compilation api examples))
-images_jpg := $(addprefix images/, $(addsuffix .jpg, moana_16spp_input moana_16spp_oidn moana_palms_16spp_input moana_palms_16spp_oidn bistro_64spp_input bistro_64spp_oidn bistro2_64spp_input bistro2_64spp_oidn sponza_16spp_input sponza_16spp_oidn mazda_64spp_input mazda_64spp_oidn villa_64spp_input villa_64spp_oidn villa2_64spp_input villa2_64spp_oidn artdeco_2048spp_input artdeco_2048spp_oidn))
+images_jpg := $(addprefix images/, $(addsuffix .jpg, moana_16spp_input moana_16spp_oidn moana_palms_16spp_input moana_palms_16spp_oidn bistro_64spp_input bistro_64spp_oidn bistro2_64spp_input bistro2_64spp_oidn sponza_16spp_input sponza_16spp_oidn mazda_64spp_input mazda_64spp_oidn mazda_512spp_color mazda_512spp_oidn mazda_512spp_albedo_firsthit mazda_512spp_albedo_nondeltahit mazda_512spp_normal_firsthit mazda_512spp_normal_nondeltahit villa_64spp_input villa_64spp_oidn villa2_64spp_input villa2_64spp_oidn artdeco_2048spp_input artdeco_2048spp_oidn))
 images_png := $(addprefix images/, $(addsuffix .png, blacktocat))
 images_fig :=
 images_svg :=
@@ -128,14 +128,14 @@ images/%:
 ## Markdown
 ## ----------------------------------------------------------------------------
 
-# also works around pandoc #5121, should be fixed in v2.5.1
-convert_nbsp_width = sed -e 's@\\ @ @g' -e 's/" style="width:/" width="/g' -e "s@^</figure>@\0\n\n@"
+# Pandoc doesn't convert the alt text of an image to a caption in markdown, so we need to do it manually
+convert_image_alt_to_caption = perl -0pe 's/!\[((?:\[.*?\]|.)+?)\]\((.*?)\)/![]\(\2)\n\1/sg'
 
 tmp/api.md: api.md tmp/links.md tmp/images_web.md
 	$(PANDOC) $+ --indented-code-classes=cpp -t markdown-fenced_code_attributes -o $@
 
 ../README.md: tmp/readme_head.md overview.md compilation.md documentation.md tmp/api.md examples.md tmp/links.md tmp/images_web.md
-	$(PANDOC) $+ -t gfm | $(convert_nbsp_width) > $@
+	$(PANDOC) $+ -t gfm | $(convert_image_alt_to_caption) > $@
 
 ## ----------------------------------------------------------------------------
 ## PDF

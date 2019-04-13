@@ -18,7 +18,7 @@ cmake_minimum_required(VERSION 3.1)
 
 set(OIDN_VERSION_MAJOR 0)
 set(OIDN_VERSION_MINOR 8)
-set(OIDN_VERSION_PATCH 1)
+set(OIDN_VERSION_PATCH 2)
 set(OIDN_VERSION_NOTE "")
 
 set(OIDN_VERSION ${OIDN_VERSION_MAJOR}.${OIDN_VERSION_MINOR}.${OIDN_VERSION_PATCH})
@@ -29,8 +29,23 @@ project(OpenImageDenoise
   LANGUAGES CXX
 )
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake")
 
+# Build as shared or static library
+if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.13.0")
+  option(OIDN_STATIC_LIB "Build Open Image Denoise as a static library.")
+  mark_as_advanced(CLEAR OIDN_STATIC_LIB)
+else()
+  set(OIDN_STATIC_LIB OFF CACHE BOOL "Build Open Image Denoise as a static library." FORCE)
+  mark_as_advanced(OIDN_STATIC_LIB)
+endif()
+if(OIDN_STATIC_LIB)
+  set(OIDN_LIB_TYPE STATIC)
+else()
+  set(OIDN_LIB_TYPE SHARED)
+endif()
+
+# Configuration types
 set(CONFIGURATION_TYPES "Debug;Release;RelWithDebInfo")
 if(win32)
   if(NOT OIDN_DEFAULT_CMAKE_CONFIGURATION_TYPES_SET)
@@ -103,17 +118,6 @@ configure_file(
   "${PROJECT_SOURCE_DIR}/include/OpenImageDenoise/version.h"
 )
 
-include_directories(
-  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-  ${PROJECT_SOURCE_DIR}
-  ${PROJECT_SOURCE_DIR}/mkl-dnn/include
-  ${PROJECT_SOURCE_DIR}/mkl-dnn/src
-  ${PROJECT_SOURCE_DIR}/mkl-dnn/src/common
-  ${PROJECT_SOURCE_DIR}/mkl-dnn/src/cpu/xbyak
-  ${TBB_INCLUDE_DIR}
-)
-
 add_subdirectory(common EXCLUDE_FROM_ALL)
 
 set(CORE_SOURCES
@@ -156,7 +160,22 @@ generate_cpp_resources(WEIGHTS_SOURCES "oidn::weights"
 
 set_source_files_properties(${CORE_SOURCES_SSE41} PROPERTIES COMPILE_FLAGS "${ISA_FLAGS_SSE41}")
 
-add_library(${PROJECT_NAME} SHARED ${CORE_SOURCES} ${CORE_SOURCES_SSE41} ${WEIGHTS_SOURCES})
+add_library(${PROJECT_NAME} ${OIDN_LIB_TYPE} ${CORE_SOURCES} ${CORE_SOURCES_SSE41} ${WEIGHTS_SOURCES})
+
+if(OIDN_STATIC_LIB)
+  target_compile_definitions(${PROJECT_NAME} INTERFACE -DOIDN_STATIC_LIB)
+endif()
+
+target_include_directories(${PROJECT_NAME}
+  PUBLIC
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+  PRIVATE
+    ${PROJECT_SOURCE_DIR}/mkl-dnn/include
+    ${PROJECT_SOURCE_DIR}/mkl-dnn/src
+    ${PROJECT_SOURCE_DIR}/mkl-dnn/src/common
+    ${PROJECT_SOURCE_DIR}/mkl-dnn/src/cpu/xbyak
+)
 
 #list(APPEND DNN_LIBRARY mkldnn ${TBB_LIBRARIES})
 list(APPEND DNN_LIBRARY nnpack ${TBB_LIBRARIES})

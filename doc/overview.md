@@ -1,7 +1,7 @@
 Open Image Denoise Overview
 ===========================
 
-Intel® Open Image Denoise is a collection of high-performance,
+Intel® Open Image Denoise is an open source library of high-performance,
 high-quality denoising filters for images rendered with ray tracing.
 Open Image Denoise is part of the
 [Intel Rendering Framework](https://software.intel.com/en-us/rendering-framework)
@@ -14,6 +14,17 @@ reduce rendering times in ray tracing based rendering applications. It filters
 out the Monte Carlo noise inherent to stochastic ray tracing methods like path
 tracing, reducing the amount of necessary samples per pixel by even multiple
 orders of magnitude (depending on the desired closeness to the ground truth).
+A simple but flexible C/C++ API ensures that the library can be easily
+integrated into most existing or new rendering solutions.
+
+At the heart of the Open Image Denoise library is an efficient deep learning
+based denoising filter, which was trained to handle a wide range of samples per
+pixel (spp), from 1 spp to almost fully converged. Thus it is suitable for both
+preview and final-frame rendering. The filters can denoise images either using
+only the noisy color (*beauty*) buffer, or, to preserve as much detail as
+possible, can optionally utilize auxiliary feature buffers as well (e.g.
+albedo, normal). Such buffers are supported by most renderers as arbitrary
+output variables (AOVs) or can be usually implemented with little effort.
 
 Open Image Denoise supports Intel® 64 architecture based CPUs and compatible
 architectures, and runs on anything from laptops, to workstations, to compute
@@ -23,9 +34,9 @@ ray tracing.
 
 Open Image Denoise internally builds on top of
 [Intel® Math Kernel Library for Deep Neural Networks (MKL-DNN)](https://github.com/intel/mkl-dnn),
-and fully exploits modern instruction sets like Intel SSE4, AVX2, and AVX-512
-to achieve high denoising performance. A CPU with support for at least SSE4.1
-is required to run Open Image Denoise.
+and automatically exploits modern instruction sets like Intel SSE4, AVX2, and
+AVX-512 to achieve high denoising performance. A CPU with support for at least
+SSE4.1 is required to run Open Image Denoise.
 
 
 Support and Contact

@@ -28,8 +28,16 @@ install(TARGETS ${PROJECT_NAME}
   # On Windows put the dlls into bin
   RUNTIME
     DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT lib
-  INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
+
+if(OIDN_STATIC_LIB)
+  install(TARGETS common mkldnn
+    EXPORT
+      ${PROJECT_NAME}_Export
+    ARCHIVE
+      DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT devel
+  )
+endif()
 
 ## ----------------------------------------------------------------------------
 ## Install headers

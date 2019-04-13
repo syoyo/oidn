@@ -118,7 +118,7 @@ namespace oidn {
         float x = values[i];
 
         // Sanitize the value
-        x = isfinite(x) ? max(x, 0.f) : 0.f;
+        x = maxSafe(x, 0.f);
 
         // Apply the transfer function
         x = transferFunc->forward(x);
@@ -138,7 +138,7 @@ namespace oidn {
         float x = values[i];
 
         // Sanitize the value
-        x = isfinite(x) ? clamp(x, 0.f, 1.f) : 0.f;
+        x = clampSafe(x, 0.f, 1.f);
 
         // Store the value
         store(h, w, c, x);
@@ -154,13 +154,16 @@ namespace oidn {
       float z = values[2];
 
       // Compute the length of the normal
-      const float length2 = sqr(x) + sqr(y) + sqr(z);
+      const float lengthSqr = sqr(x) + sqr(y) + sqr(z);
 
       // Normalize the normal and transform it to [0..1]
-      if (isfinite(length2) && length2 > 1e-8f)
+      if (isfinite(lengthSqr))
       {
-        const float scale  = rsqrt(length2) * 0.5f;
+        const float invLength = (lengthSqr > minVectorLengthSqr) ? rsqrt(lengthSqr) : 1.f;
+
+        const float scale  = invLength * 0.5f;
         const float offset = 0.5f;
+
         x = x * scale + offset;
         y = y * scale + offset;
         z = z * scale + offset;
