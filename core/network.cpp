@@ -20,6 +20,9 @@
 
 namespace oidn {
 
+#if OIDN_USE_NNPACK
+
+#else
   namespace
   {
     std::mutex executionMutex;
@@ -238,6 +241,8 @@ namespace oidn {
 
 #if defined(OIDN_USE_NNPACK)
     // TODO(LTE):
+    //auto node = std::make_shared<PoolNode>(poolPrimDesc, src, dst);
+    //nodes.push_back(node);
     return nullptr;
 #else
     auto poolDesc = pooling_forward::desc(
@@ -294,5 +299,6 @@ namespace oidn {
 
   template class Network<8>;
   template class Network<16>;
+#endif
 
 } // namespace oidn

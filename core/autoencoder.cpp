@@ -99,6 +99,14 @@ namespace oidn {
     });
   }
 
+#if OIDN_USE_NNPACK
+  template<int K>
+  std::shared_ptr<Node> AutoencoderFilter::buildNet()
+  {
+    // TODO(LTE):
+    return nullptr;
+  }
+#else
   template<int K>
   std::shared_ptr<Node> AutoencoderFilter::buildNet()
   {
@@ -332,6 +340,7 @@ namespace oidn {
 
     return net;
   }
+#endif
 
   // --------------------------------------------------------------------------
   // RTFilter

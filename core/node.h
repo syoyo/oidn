@@ -26,9 +26,31 @@ namespace oidn {
   public:
     virtual ~Node() = default;
     virtual void execute() = 0;
+#if defined(OIDN_USE_NNPACK)
+    virtual std::shared_ptr<std::vector<float>> getDst() const { return nullptr; }
+#else
     virtual std::shared_ptr<memory> getDst() const { return nullptr; }
+#endif
   };
 
+#if defined(OIDN_USE_NNPACK)
+  // Node wrapping an NNPACK primitive
+  class NnpNode : public Node
+  {
+  private:
+    //std::vector<primitive> net;
+
+  public:
+    NnpNode()
+    {
+    }
+
+    void execute() override
+    {
+      //stream(stream::kind::eager).submit(net).wait();
+    }
+  };
+#else
   // Node wrapping an MKL-DNN primitive
   class MklNode : public Node
   {
@@ -43,14 +65,46 @@ namespace oidn {
 
     void execute() override
     {
-#if defined(OIDN_USE_NNPACK)
-#else
       stream(stream::kind::eager).submit(net).wait();
-#endif
     }
   };
+#endif
 
 #if defined(OIDN_USE_NNPACK)
+  // Convolution node
+  class ConvNode : public NnpNode
+  {
+  private:
+    std::shared_ptr<std::vector<float>> src;
+    std::shared_ptr<std::vector<float>> weights;
+    std::shared_ptr<std::vector<float>> bias;
+    std::shared_ptr<std::vector<float>> dst;
+
+  public:
+    ConvNode(const convolution_forward::primitive_desc& desc,
+             const std::shared_ptr<std::vector<float>>& src,
+             const std::shared_ptr<std::vector<float>>& weights,
+             const std::shared_ptr<std::vector<float>>& bias,
+             const std::shared_ptr<std::vector<float>>& dst)
+      : src(src), weights(weights), bias(bias), dst(dst) {}
+
+    std::shared_ptr<std::vector<float>> getDst() const override { return dst; }
+  };
+
+  // Pooling node
+  class PoolNode : public NnpNode
+  {
+  private:
+    std::shared_ptr<std::vector<float>> src;
+    std::shared_ptr<std::vector<float>> dst;
+
+  public:
+    PoolNode(const std::shared_ptr<std::vector<float>>& src,
+             const std::shared_ptr<std::vector<float>>& dst)
+      : src(src), dst(dst) {}
+
+    std::shared_ptr<std::vector<float>> getDst() const override { return dst; }
+  };
 #else
   // Convolution node
   class ConvNode : public MklNode
