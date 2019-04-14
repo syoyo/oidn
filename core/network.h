@@ -77,7 +77,7 @@ namespace oidn {
     memory::dims getConcatDims(const memory::dims& src1Dims, const memory::dims& src2Dims);
 
   private:
-    engine cpuEngine;
+    //engine cpuEngine;
     std::vector<std::shared_ptr<Node>> nodes;
     std::map<std::string, Tensor> weightMap;
   };

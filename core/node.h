@@ -26,11 +26,7 @@ namespace oidn {
   public:
     virtual ~Node() = default;
     virtual void execute() = 0;
-#if defined(OIDN_USE_NNPACK)
-    virtual std::shared_ptr<std::vector<float>> getDst() const { return nullptr; }
-#else
     virtual std::shared_ptr<memory> getDst() const { return nullptr; }
-#endif
   };
 
 #if defined(OIDN_USE_NNPACK)
@@ -75,35 +71,35 @@ namespace oidn {
   class ConvNode : public NnpNode
   {
   private:
-    std::shared_ptr<std::vector<float>> src;
-    std::shared_ptr<std::vector<float>> weights;
-    std::shared_ptr<std::vector<float>> bias;
-    std::shared_ptr<std::vector<float>> dst;
+    std::shared_ptr<memory> src;
+    std::shared_ptr<memory> weights;
+    std::shared_ptr<memory> bias;
+    std::shared_ptr<memory> dst;
 
   public:
-    ConvNode(const convolution_forward::primitive_desc& desc,
-             const std::shared_ptr<std::vector<float>>& src,
-             const std::shared_ptr<std::vector<float>>& weights,
-             const std::shared_ptr<std::vector<float>>& bias,
-             const std::shared_ptr<std::vector<float>>& dst)
+    ConvNode(const memory::primitive_desc& desc,
+             const std::shared_ptr<memory>& src,
+             const std::shared_ptr<memory>& weights,
+             const std::shared_ptr<memory>& bias,
+             const std::shared_ptr<memory>& dst)
       : src(src), weights(weights), bias(bias), dst(dst) {}
 
-    std::shared_ptr<std::vector<float>> getDst() const override { return dst; }
+    std::shared_ptr<memory> getDst() const override { return dst; }
   };
 
   // Pooling node
   class PoolNode : public NnpNode
   {
   private:
-    std::shared_ptr<std::vector<float>> src;
-    std::shared_ptr<std::vector<float>> dst;
+    std::shared_ptr<memory> src;
+    std::shared_ptr<memory> dst;
 
   public:
-    PoolNode(const std::shared_ptr<std::vector<float>>& src,
-             const std::shared_ptr<std::vector<float>>& dst)
+    PoolNode(const std::shared_ptr<memory>& src,
+             const std::shared_ptr<memory>& dst)
       : src(src), dst(dst) {}
 
-    std::shared_ptr<std::vector<float>> getDst() const override { return dst; }
+    std::shared_ptr<memory> getDst() const override { return dst; }
   };
 #else
   // Convolution node

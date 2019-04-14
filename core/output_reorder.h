@@ -27,7 +27,7 @@ namespace oidn {
   {
   private:
     std::shared_ptr<memory> src;
-    const float* srcPtr;
+    const float* srcPtr = nullptr;
     int H1;
     int W1;
 
@@ -44,21 +44,20 @@ namespace oidn {
         transferFunc(transferFunc)
     {
       memory::primitive_desc srcPrimDesc = src->get_primitive_desc();
-      const mkldnn_memory_desc_t& srcDesc = srcPrimDesc.desc().data;
-      MAYBE_UNUSED(srcDesc);
-      assert(srcDesc.format == BlockedFormat<K>::nChwKc);
-      assert(srcDesc.ndims == 4);
-      assert(srcDesc.data_type == memory::data_type::f32);
-      assert(srcDesc.dims[0] == 1);
+      MAYBE_UNUSED(srcPrimDesc);
+      assert(srcPrimDesc.get_format() == BlockedFormat<K>::nChwKc);
+      assert(srcPrimDesc.get_ndims() == 4);
+      assert(srcPrimDesc.get_data_type() == memory::data_type::f32);
+      assert(srcPrimDesc.get_dims()[0] == 1);
       // We assume output data is <= K OC
-      assert(srcDesc.dims[1] == K);
+      assert(srcPrimDesc.get_dims()[1] == K);
 
-      assert(output.height <= srcDesc.dims[2]);
-      assert(output.width  <= srcDesc.dims[3]);
+      assert(output.height <= srcPrimDesc.get_dims()[2]);
+      assert(output.width  <= srcPrimDesc.get_dims()[3]);
 
-      srcPtr = (float*)src->get_data_handle();
-      H1 = srcDesc.dims[2];
-      W1 = srcDesc.dims[3];
+      srcPtr = src->get_data();
+      H1 = srcPrimDesc.get_dims()[2];
+      W1 = srcPrimDesc.get_dims()[3];
     }
 
     void execute() override

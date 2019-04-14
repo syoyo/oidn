@@ -20,6 +20,7 @@
 
 #if OIDN_USE_NNPACK
 #include "mkldnn-compat.h"
+#include "nnpack.h"
 #else
 #include "mkl-dnn/include/mkldnn.hpp"
 #include "mkl-dnn/include/mkldnn_debug.h"
@@ -57,6 +58,17 @@ namespace oidn {
     return 0;
   }
 
+#if OIDN_USE_NNPACK
+  inline memory::dims getTensorDims(const std::shared_ptr<memory>& mem)
+  {
+    return mem.get()->get_primitive_desc().get_dims();
+  }
+
+  inline memory::data_type getTensorType(const std::shared_ptr<memory>& mem)
+  {
+    return mem.get()->get_primitive_desc().get_data_type();
+  }
+#else
   inline memory::dims getTensorDims(const std::shared_ptr<memory>& mem)
   {
     const mkldnn_memory_desc_t& desc = mem->get_primitive_desc().desc().data;
@@ -68,6 +80,7 @@ namespace oidn {
     const mkldnn_memory_desc_t& desc = mem->get_primitive_desc().desc().data;
     return memory::data_type(desc.data_type);
   }
+#endif
 
   // Returns the number of values in a tensor
   inline size_t getTensorSize(const memory::dims& dims)

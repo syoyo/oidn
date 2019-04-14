@@ -1,42 +1,5 @@
 #pragma once
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#define TENSOR_MAX_DIMS   (12)
-
-typedef int mkldnn_dims_t[TENSOR_MAX_DIMS];
-typedef ptrdiff_t mkldnn_strides_t[TENSOR_MAX_DIMS];
-
-/** Data type specification */
-typedef enum {
-    /** Undefined data type, used for empty memory descriptors. */
-    mkldnn_data_type_undef = 0,
-    /** 32-bit/single-precision floating point. */
-    mkldnn_f32 = 1,
-    /** 32-bit signed integer. */
-    mkldnn_s32 = 2,
-    /** 16-bit signed integer. */
-    mkldnn_s16 = 4,
-    /** 8-bit signed integer. */
-    mkldnn_s8 = 5,
-    /** 8-bit unsigned integer. */
-    mkldnn_u8 = 6,
-} mkldnn_data_type_t;
-
-
-typedef struct {
-  int ndims;
-  mkldnn_dims_t dims;
-  mkldnn_data_type_t data_type;
-
-} mkldnn_memory_desc_t;
-
-#ifdef __cplusplus
-}
-#endif
-
 namespace mkldnn_compat {
 
 class primitive {
@@ -64,18 +27,6 @@ struct engine {
   }
 };
 
-struct convolution_forward : public primitive {
-  struct primitive_desc {
-    // TODO(syoyo): Implement
-    // src, weights, biasm dst
-  };
-};
-
-struct pooling_forward : public primitive {
-
-};
-
-
 struct memory : public primitive {
 
  public:
@@ -100,43 +51,37 @@ struct memory : public primitive {
   };
 
 
-
-  struct desc {
-    friend struct memory;
-
-    mkldnn_memory_desc_t data;
-
-    desc(dims adims, data_type adata_type, format aformat) {
-      // TODO(syoyo): Implement
-    }
-
-  };
-
   struct primitive_desc {
     friend struct memory;
 
     // TODO: make private
     primitive_desc() :
-      desc_({0}, data_type::f32, format::any) {
+      data_type_(data_type::f32), format_(format::any) {
     }
 
-    primitive_desc(const desc &adesc, const engine &aengine) : desc_(adesc) {
-      //mkldnn_primitive_desc_t result;
-      //error::wrap_c_api(
-      //        mkldnn_memory_primitive_desc_create(&result,
-      //            &adesc.data, aengine.get()),
-      //        "could not initialize a memory primitive descriptor");
-      //reset(result);
-
-      // TODO(syoyo):
+    primitive_desc(const dims &dims, const memory::data_type data_type, const memory::format format) :
+      dims_(dims), data_type_(data_type), format_(format) {
     }
 
-
-    memory::desc desc() {
-      return desc_;
+    dims get_dims() const {
+      return dims_;
     }
 
-    struct desc desc_;
+    int get_ndims() const {
+      return int(dims_.size());
+    }
+
+    data_type get_data_type() const {
+      return data_type_;
+    }
+
+    format get_format() const {
+      return format_;
+    }
+
+    dims dims_;
+    data_type data_type_;
+    format format_;
   };
 
   memory(const primitive_desc &adesc) : primitive_desc_(adesc) {
@@ -153,17 +98,20 @@ struct memory : public primitive {
      return primitive_desc_;
   }
 
-  void *get_data_handle() {
-    return reinterpret_cast<void *>(data.data());
+  const float *get_data() const {
+    return data_.data();
+  }
+
+  float *get_data() {
+    return data_.data();
   }
 
  private:
-  //int dim[4] = {0, 0, 0, 0};
-  std::vector<float> data;
-  primitive_desc primitive_desc_;
+  struct primitive_desc primitive_desc_;
+  std::vector<float> data_; // TODO(LTE): use uint8 for supporting arbitrary tensor type
 
 };
- 
+
 
 
 } // namespace

@@ -27,46 +27,42 @@ namespace oidn {
   class UpsampleNode : public Node
   {
   private:
-    std::shared_ptr<std::vector<float>> src;
-    std::shared_ptr<std::vector<float>> dst;
+    std::shared_ptr<memory> src;
+    std::shared_ptr<memory> dst;
 
   public:
-    UpsampleNode(const std::shared_ptr<std::vector<float>>& src,
-                 const std::shared_ptr<std::vector<float>>& dst)
+    UpsampleNode(const std::shared_ptr<memory>& src,
+                 const std::shared_ptr<memory>& dst)
       : src(src),
         dst(dst)
     {
-      //memory::primitive_desc srcPrimDesc = src->get_primitive_desc();
-      //memory::primitive_desc dstPrimDesc = dst->get_primitive_desc();
-      //const mkldnn_memory_desc_t& srcDesc = srcPrimDesc.desc().data;
-      //const mkldnn_memory_desc_t& dstDesc = dstPrimDesc.desc().data;
-      //MAYBE_UNUSED(srcDesc);
-      //MAYBE_UNUSED(dstDesc);
-      //assert(srcDesc.format == BlockedFormat<K>::nChwKc);
-      //assert(dstDesc.format == BlockedFormat<K>::nChwKc);
-      //assert(srcDesc.ndims == 4);
-      //assert(dstDesc.ndims == 4);
-      //assert(srcDesc.data_type == memory::data_type::f32);
-      //assert(dstDesc.data_type == memory::data_type::f32);
-      //assert(srcDesc.dims[0] == 1);
-      //assert(dstDesc.dims[0] == 1);
-      //// 2x2 upsampling
-      //assert(dstDesc.dims[2] == srcDesc.dims[2] * 2);
-      //assert(dstDesc.dims[3] == srcDesc.dims[3] * 2);
+      memory::primitive_desc srcDesc = src->get_primitive_desc();
+      memory::primitive_desc dstDesc = dst->get_primitive_desc();
+      MAYBE_UNUSED(srcDesc);
+      MAYBE_UNUSED(dstDesc);
+      assert(srcDesc.get_format() == BlockedFormat<K>::nChwKc);
+      assert(dstDesc.get_format() == BlockedFormat<K>::nChwKc);
+      assert(srcDesc.get_ndims() == 4);
+      assert(dstDesc.get_ndims() == 4);
+      assert(srcDesc.get_data_type() == memory::data_type::f32);
+      assert(dstDesc.get_data_type() == memory::data_type::f32);
+      assert(srcDesc.get_dims()[0] == 1);
+      assert(dstDesc.get_dims()[0] == 1);
+      // 2x2 upsampling
+      assert(dstDesc.get_dims()[2] == srcDesc.get_dims()[2] * 2);
+      assert(dstDesc.get_dims()[3] == srcDesc.get_dims()[3] * 2);
     }
 
     void execute() override
     {
-      //memory::primitive_desc srcPrimDesc = src->get_primitive_desc();
-      //const mkldnn_memory_desc_t& srcDesc = srcPrimDesc.desc().data;
+      memory::primitive_desc srcPrimDesc = src->get_primitive_desc();
 
-      const float* srcPtr = src.get().data();
-      float* dstPtr = dst.get().data();
+      const float* srcPtr = src->get_data();
+      float* dstPtr = dst->get_data();
 
-      // TODO(LTE):
-      const int C = 0; // srcDesc.dims[1];
-      const int H = 0; // srcDesc.dims[2];
-      const int W = 0; // srcDesc.dims[3];
+      const int C = srcPrimDesc.get_dims()[1];
+      const int H = srcPrimDesc.get_dims()[2];
+      const int W = srcPrimDesc.get_dims()[3];
       const int CK = C / K;
 
       //parallel_nd(CK, H, [&](int ck, int h)
@@ -96,7 +92,7 @@ namespace oidn {
       }
     }
 
-    std::shared_ptr<std::vector<float>> getDst() const override { return dst; }
+    std::shared_ptr<memory> getDst() const override { return dst; }
   };
 
 #else

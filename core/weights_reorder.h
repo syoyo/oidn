@@ -26,50 +26,45 @@ namespace oidn {
   class WeightsReorderNode : public Node
   {
   private:
-    std::shared_ptr<std::vector<float>> src;
-    std::shared_ptr<std::vector<float>> dst;
+    std::shared_ptr<memory> src;
+    std::shared_ptr<memory> dst;
 
   public:
-    WeightsReorderNode(const std::shared_ptr<std::vector<float>>& _src,
-                       const std::shared_ptr<std::vector<float>>& _dst)
+    WeightsReorderNode(const std::shared_ptr<memory>& _src,
+                       const std::shared_ptr<memory>& _dst)
       : src(_src),
         dst(_dst)
     {
-      //memory::primitive_desc srcPrimDesc = src->get_primitive_desc();
-      //memory::primitive_desc dstPrimDesc = dst->get_primitive_desc();
-      //const mkldnn_memory_desc_t& srcDesc = srcPrimDesc.desc().data;
-      //const mkldnn_memory_desc_t& dstDesc = dstPrimDesc.desc().data;
-      //MAYBE_UNUSED(srcDesc);
-      //MAYBE_UNUSED(dstDesc);
-      //assert(srcDesc.format == memory::format::oihw);
-      //assert(dstDesc.format == memory::format::oihw);
-      //assert(srcDesc.ndims == 4);
-      //assert(dstDesc.ndims == 4);
-      //assert(srcDesc.data_type == memory::data_type::f32);
-      //assert(dstDesc.data_type == memory::data_type::f32);
-      //assert(getPadded<K>(srcDesc.dims[0]) == dstDesc.dims[0]); // OC
-      //assert(getPadded<K>(srcDesc.dims[1]) == dstDesc.dims[1]); // IC
-      //assert(srcDesc.dims[2] == dstDesc.dims[2]);
-      //assert(srcDesc.dims[3] == dstDesc.dims[3]);
+      memory::primitive_desc srcDesc = src->get_primitive_desc();
+      memory::primitive_desc dstDesc = dst->get_primitive_desc();
+      MAYBE_UNUSED(srcDesc);
+      MAYBE_UNUSED(dstDesc);
+      assert(srcDesc.get_format() == memory::format::oihw);
+      assert(dstDesc.get_format() == memory::format::oihw);
+      assert(srcDesc.get_ndims() == 4);
+      assert(dstDesc.get_ndims() == 4);
+      assert(srcDesc.get_data_type() == memory::data_type::f32);
+      assert(dstDesc.get_data_type() == memory::data_type::f32);
+      assert(getPadded<K>(srcDesc.get_dims()[0]) == dstDesc.get_dims()[0]); // OC
+      assert(getPadded<K>(srcDesc.get_dims()[1]) == dstDesc.get_dims()[1]); // IC
+      assert(srcDesc.get_dims()[2] == dstDesc.get_dims()[2]);
+      assert(srcDesc.get_dims()[3] == dstDesc.get_dims()[3]);
     }
 
     void execute() override
     {
-      //memory::primitive_desc srcPrimDesc = src->get_primitive_desc();
-      //memory::primitive_desc dstPrimDesc = dst->get_primitive_desc();
-      //const mkldnn_memory_desc_t& srcDesc = srcPrimDesc.desc().data;
-      //const mkldnn_memory_desc_t& dstDesc = dstPrimDesc.desc().data;
+      memory::primitive_desc srcPrimDesc = src->get_primitive_desc();
+      memory::primitive_desc dstPrimDesc = dst->get_primitive_desc();
 
-      const float* srcPtr = src.get().data();
-      float* dstPtr = dst.get().data();
+      const float* srcPtr = src->get_data();
+      float* dstPtr = dst->get_data();
 
-      // TODO(LTE):
-      const int OC1 = 0; //srcDesc.dims[0];
-      const int OC2 = 0; //dstDesc.dims[0];
-      const int IC1 = 0; //srcDesc.dims[1];
-      const int IC2 = 0; //dstDesc.dims[1];
-      const int H   = 0; //dstDesc.dims[2];
-      const int W   = 0; //dstDesc.dims[3];
+      const int OC1 = srcPrimDesc.get_dims()[0];
+      const int OC2 = dstPrimDesc.get_dims()[0];
+      const int IC1 = srcPrimDesc.get_dims()[1];
+      const int IC2 = dstPrimDesc.get_dims()[1];
+      const int H   = dstPrimDesc.get_dims()[2];
+      const int W   = dstPrimDesc.get_dims()[3];
 
       for (int oc = 0; oc < OC2; ++oc)
       {

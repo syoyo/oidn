@@ -31,7 +31,7 @@ namespace oidn {
     Image albedo;
     Image normal;
 
-    std::shared_ptr<std::vector<float>> dst;
+    std::shared_ptr<memory> dst;
     float* dstPtr;
     int C2;
     int H2;
@@ -43,27 +43,25 @@ namespace oidn {
     InputReorderNode(const Image& color,
                      const Image& albedo,
                      const Image& normal,
-                     const std::shared_ptr<std::vector<float>>& dst,
+                     const std::shared_ptr<memory>& dst,
                      const std::shared_ptr<TransferFunc>& transferFunc)
       : color(color), albedo(albedo), normal(normal),
         dst(dst),
         transferFunc(transferFunc)
     {
-      //memory::primitive_desc dstPrimDesc = dst->get_primitive_desc();
-      //const mkldnn_memory_desc_t& dstDesc = dstPrimDesc.desc().data;
-      //assert(dstDesc.format == BlockedFormat<K>::nChwKc);
-      //assert(dstDesc.ndims == 4);
-      //assert(dstDesc.data_type == memory::data_type::f32);
-      //assert(dstDesc.dims[0] == 1);
-      //assert(dstDesc.dims[1] >= getPadded<K>(C1));
-      //assert(dstDesc.dims[2] >= color.height);
-      //assert(dstDesc.dims[3] >= color.width);
+      memory::primitive_desc dstDesc = dst->get_primitive_desc();
+      assert(dstDesc.get_format() == BlockedFormat<K>::nChwKc);
+      assert(dstDesc.get_ndims() == 4);
+      assert(dstDesc.get_data_type() == memory::data_type::f32);
+      assert(dstDesc.get_dims()[0] == 1);
+      //assert(dstDesc.get_dims()[1] >= getPadded<K>(C1));
+      assert(dstDesc.get_dims()[2] >= color.height);
+      assert(dstDesc.get_dims()[3] >= color.width);
 
-      dstPtr = dst.get()->data();
-      // TODO(LTE):
-      //C2 = dstDesc.dims[1];
-      //H2 = dstDesc.dims[2];
-      //W2 = dstDesc.dims[3];
+      dstPtr = dst.get()->get_data();
+      C2 = dstDesc.get_dims()[1];
+      H2 = dstDesc.get_dims()[2];
+      W2 = dstDesc.get_dims()[3];
 
       // Zero the destination because it may be padded
       // We assume that the destination will not be modified by other nodes!
