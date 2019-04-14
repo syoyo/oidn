@@ -96,7 +96,7 @@ namespace oidn {
       };
     }
 
-    std::shared_ptr<std::vector<float>> getDst() const override { return dst; }
+    std::shared_ptr<memory> getDst() const override { return dst; }
 
   private:
     // Stores a single value

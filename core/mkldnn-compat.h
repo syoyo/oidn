@@ -106,6 +106,10 @@ struct memory : public primitive {
     return data_.data();
   }
 
+  void *get_data_handle() {
+    return reinterpret_cast<void *>(data_.data());
+  }
+
  private:
   struct primitive_desc primitive_desc_;
   std::vector<float> data_; // TODO(LTE): use uint8 for supporting arbitrary tensor type

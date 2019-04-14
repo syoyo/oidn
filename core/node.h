@@ -95,6 +95,7 @@ namespace oidn {
     std::shared_ptr<memory> dst;
 
   public:
+    // TODO(syoyo): Desc
     PoolNode(const std::shared_ptr<memory>& src,
              const std::shared_ptr<memory>& dst)
       : src(src), dst(dst) {}

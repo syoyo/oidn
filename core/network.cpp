@@ -113,7 +113,6 @@ namespace oidn {
     return dstDims;
   }
 
-#if 0
   template<int K>
   std::shared_ptr<Node> Network<K>::addConv(const std::string& name,
                                             const std::shared_ptr<memory>& src,
@@ -187,23 +186,27 @@ namespace oidn {
     }
 
     auto convPrimDesc = convolution_forward::primitive_desc(convDesc, convAttr, cpuEngine);
+#endif
 
     // Reorder the weights to the final format, if necessary
     auto weights = weightsPad;
+
+#if 0 // TODO(syoyo)
     if (memory::primitive_desc(convPrimDesc.weights_primitive_desc()) != weightsPad->get_primitive_desc())
     {
       weights = std::make_shared<memory>(convPrimDesc.weights_primitive_desc());
       MklNode(reorder(*weightsPad, *weights)).execute();
     }
+#endif
 
     // Create convolution node and add it to the net
+    // FIXME(syoyo): Implement
+    memory::primitive_desc convPrimDesc;
     auto node = std::make_shared<ConvNode>(convPrimDesc, src, weights, bias, dst);
     nodes.push_back(node);
     return node;
-#endif
 
   }
-#endif
 
   template<int K>
   memory::dims Network<K>::getPoolDims(const memory::dims& srcDims)
@@ -214,7 +217,6 @@ namespace oidn {
     return dstDims;
   }
 
-#if 0
   template<int K>
   std::shared_ptr<Node> Network<K>::addPool(const std::shared_ptr<memory>& src,
                                             const std::shared_ptr<memory>& userDst)
@@ -231,18 +233,19 @@ namespace oidn {
       dst = allocTensor(dstDims);
     assert(getTensorDims(dst) == dstDims);
 
+#if 0 // TODO(syoyo): Implement desc
     auto poolDesc = pooling_forward::desc(
       prop_kind::forward_inference, pooling_max,
       src->get_primitive_desc().desc(),
       dst->get_primitive_desc().desc(),
       strides, kernel, padding, padding, padding_kind::zero);
     auto poolPrimDesc = pooling_forward::primitive_desc(poolDesc, cpuEngine);
+#endif
 
-    auto node = std::make_shared<PoolNode>(poolPrimDesc, src, dst);
+    auto node = std::make_shared<PoolNode>(src, dst);
     nodes.push_back(node);
     return node;
   }
-#endif
 
   template<int K>
   memory::dims Network<K>::getUpsampleDims(const memory::dims& srcDims)
